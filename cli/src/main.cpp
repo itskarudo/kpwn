@@ -5,7 +5,7 @@
 
 int main(int argc, char *argv[]) {
   argparse::ArgumentParser program("kpwn");
-  program.add_description("kpwn - Kernel Pwn Toolkit");
+  program.add_description("kpwn - The kernel exploitation toolkit");
 
   argparse::ArgumentParser init_command("init");
   init_command.add_description("initialize a new kpwn project");

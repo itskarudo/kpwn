@@ -49,7 +49,7 @@ install_headers(lib_headers, subdir: 'kpwn')
 pkg = import('pkgconfig')
 pkg.generate(libkpwn,
   name: 'kpwn',
-  description: 'The kernel exploitation library',
+  description: 'The kernel exploitation toolkit',
   version: meson.project_version()
 )
 

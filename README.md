@@ -1,14 +1,14 @@
-# LibKPWN - pwn the kernel
+# kpwn - The kernel exploitation toolkit
 
-LibKPWN is an exploit development library for C, it is highly focused on kernel exploitation where C is most often the only option you have, since you're locked in an isolated minimal environemnt (qemu with busybox most often), it gives you a bunch of useful types, methods and objects that you would miss when pwntools isn't an option.
+Kpwn is an exploit development library for C, it is highly focused on kernel exploitation where C is most often the only option you have, since you're locked in an isolated minimal environemnt (qemu with busybox most often), it gives you a bunch of useful types, methods and objects that you would miss when pwntools isn't an option.
 
 ## Example usage
 
 ```c
-#include <kpwn.h>
+#include <kpwn/kpwn.h>
 int main(void) {
 
-    IO* io = io_new("/dev/ctf");
+    IO* io = io_new("/dev/ctf", O_RDWR);
 
     io_write(io, b_mul(b("A"), 0x20));
     io_read(io, 0x20);
