@@ -32,7 +32,7 @@ if [ ! -d "./initramfs" ]; then
   exit 1
 fi
 
-make -C ../build || exit 1
+ninja -C ../build || exit 1
 
 cp "../build/exploit" "./initramfs/"
 cd ./initramfs
