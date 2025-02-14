@@ -26,6 +26,7 @@ libkpwn = static_library('kpwn',
   dependencies: [bdwgc_dep, uthash_dep],
   include_directories: include_directories('include'),
   install: true,
+  override_options: ['c_std=gnu18'],
 )
 
 libkpwn_dep = declare_dependency(
