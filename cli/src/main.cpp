@@ -1,4 +1,4 @@
-#include "cmds/cmds.h"
+#include "cmds.h"
 #include <argparse/argparse.hpp>
 #include <kpwn.h>
 #include <string>
