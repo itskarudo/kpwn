@@ -1,7 +1,7 @@
 #include "cmds.h"
 #include <filesystem>
-#include <fstream>
 #include <format>
+#include <fstream>
 #include <kpwn.h>
 
 constexpr const char *main_template = R"(#include <kpwn/kpwn.h>
@@ -11,13 +11,18 @@ int main(void) {
 }
 )";
 
-constexpr const char *cmake_template = R"(
-cmake_minimum_required(VERSION 3.12)
-project(Exploit)
+constexpr const char *meson_template = R"(
+project('exploit', 'c', version: '1.0.0')
 
-add_executable(exploit src/main.c)
-target_link_libraries(exploit PRIVATE kpwn gc -static)
+src_files = files(
+  'src/main.c'
+)
 
+executable('exploit',
+  src_files,
+  dependencies: [dependency('kpwn')],
+  link_args: ['-static']
+)
 )";
 
 constexpr const char *compress_template = R"(#!/bin/bash
@@ -41,7 +46,7 @@ mv ./initramfs.cpio.gz ../
 )";
 
 namespace cmds {
-void init(argparse::ArgumentParser const& cmd_options) {
+void init(argparse::ArgumentParser const &cmd_options) {
 
   log_info("Initializing the project..\n\n");
 
@@ -55,11 +60,11 @@ void init(argparse::ArgumentParser const& cmd_options) {
     if (!std::filesystem::is_directory(path))
       std::filesystem::create_directory(path);
 
-    std::ofstream cmakelists(path / "CMakeLists.txt");
-    cmakelists << cmake_template;
-    cmakelists.close();
+    std::ofstream meson_build(path / "meson.build");
+    meson_build << meson_template;
+    meson_build.close();
 
-    log_info("Created CMakeLists.txt template\n");
+    log_info("Created meson.build template\n");
 
     std::filesystem::create_directory(path / "src");
 
@@ -80,9 +85,11 @@ void init(argparse::ArgumentParser const& cmd_options) {
 
     log_info("Created chal/compress.sh template\n");
 
-    // TODO: support custom CMake options and different build systems
-    std::system(std::format("cmake -S {} -B {}/build", path.string(), path.string()).c_str());
-    std::system(std::format("make -C {}/build", path.string()).c_str());
+    // TODO: support custom meson options and different build systems
+    std::system(
+        std::format("meson setup {}/build {}", path.string(), path.string())
+            .c_str());
+    std::system(std::format("ninja -C {}/build", path.string()).c_str());
 
     std::putchar('\n');
     log_success("Initialized the project, happy hacking!\n\n");

@@ -3,6 +3,6 @@
 
 namespace cmds {
 
-void init(argparse::ArgumentParser const& cmd_options);
+void init(argparse::ArgumentParser const &cmd_options);
 
 }
