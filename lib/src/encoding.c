@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-char *url_encode(const Bytes *str) {
+char *url_encode(const bytes_t *str) {
   char *buf = GC_MALLOC_ATOMIC(b_len(str) * 3 + 1);
   if (buf == NULL)
     return NULL;
@@ -32,10 +32,10 @@ char *url_encode(const Bytes *str) {
   return buf;
 }
 
-Bytes *url_decode(const char *str) {
+bytes_t *url_decode(const char *str) {
 
   size_t len = strlen(str);
-  Bytes *buf = b_new(len);
+  bytes_t *buf = b_new(len);
 
   if (buf == NULL)
     return NULL;
@@ -65,7 +65,7 @@ static const char base64_map[] = {
     'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
     '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '/'};
 
-char *b64e(const Bytes *bytes) {
+char *b64e(const bytes_t *bytes) {
 
   size_t counts = 0;
   char buffer[3];
@@ -103,12 +103,12 @@ char *b64e(const Bytes *bytes) {
   return cipher;
 }
 
-Bytes *b64d(const char *str) {
+bytes_t *b64d(const char *str) {
 
   size_t counts = 0;
   char buffer[4];
 
-  Bytes *plain = GC_MALLOC_ATOMIC(strlen(str) * 3 / 4);
+  bytes_t *plain = GC_MALLOC_ATOMIC(strlen(str) * 3 / 4);
   if (plain == NULL)
     return NULL;
 
@@ -135,7 +135,7 @@ Bytes *b64d(const char *str) {
 
 static const char *hex_map = "0123456789abcdef";
 
-char *hex(const Bytes *bytes) {
+char *hex(const bytes_t *bytes) {
 
   char *buffer = GC_MALLOC_ATOMIC(b_len(bytes) * 2 + 1);
   if (buffer == NULL)
@@ -150,8 +150,8 @@ char *hex(const Bytes *bytes) {
   return buffer;
 }
 
-Bytes *unhex(const char *hex) {
-  Bytes *self = b_new(strlen(hex) / 2);
+bytes_t *unhex(const char *hex) {
+  bytes_t *self = b_new(strlen(hex) / 2);
 
   if (self == NULL)
     return NULL;

@@ -7,7 +7,7 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
-void io_finalizer(IO *self, void *user_data) {
+void io_finalizer(io_t *self, void *user_data) {
   (void)user_data;
 
   close(self->_fd);
@@ -15,8 +15,8 @@ void io_finalizer(IO *self, void *user_data) {
   free(self);
 }
 
-IO *io_new(const char *path, int flags) {
-  IO *self = GC_MALLOC_ATOMIC(sizeof(IO));
+io_t *io_new(const char *path, int flags) {
+  io_t *self = GC_MALLOC_ATOMIC(sizeof(io_t));
   if (self == NULL)
     return NULL;
 
@@ -30,11 +30,11 @@ IO *io_new(const char *path, int flags) {
   return self;
 }
 
-void io_close(IO *self) { close(self->_fd); }
+void io_close(io_t *self) { close(self->_fd); }
 
-Bytes *io_read(IO *self, size_t n) {
+bytes_t *io_read(io_t *self, size_t n) {
 
-  Bytes *buffer = b_new(n);
+  bytes_t *buffer = b_new(n);
   if (buffer == NULL)
     return NULL;
 
@@ -43,23 +43,23 @@ Bytes *io_read(IO *self, size_t n) {
   return buffer;
 }
 
-Bytes *io_readuntil(IO *self, Bytes *delim) {
+bytes_t *io_readuntil(io_t *self, bytes_t *delim) {
 
-  Bytes *buffer = io_read(self, b_len(delim));
+  bytes_t *buffer = io_read(self, b_len(delim));
 
   while (b_cmp(b_slice(buffer, -b_len(delim), -1), delim) != 0) {
-    Bytes *tmp = io_read(self, 1);
+    bytes_t *tmp = io_read(self, 1);
     buffer = flat(buffer, tmp, NULL);
   }
 
   return buffer;
 }
 
-Bytes *io_readline(IO *self) { return io_readuntil(self, b("\n")); }
+bytes_t *io_readline(io_t *self) { return io_readuntil(self, b("\n")); }
 
-void io_write(IO *self, Bytes *v) { write(self->_fd, v->_data, v->_len); }
+void io_write(io_t *self, bytes_t *v) { write(self->_fd, v->_data, v->_len); }
 
-int io_ioctl(IO *self, unsigned long request, ...) {
+int io_ioctl(io_t *self, unsigned long request, ...) {
   va_list args;
   va_start(args, request);
   return ioctl(self->_fd, request, va_arg(args, void *));

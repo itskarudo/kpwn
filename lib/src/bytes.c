@@ -5,8 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-Bytes *b_new(size_t n) {
-  Bytes *self = GC_MALLOC_ATOMIC(sizeof(Bytes) + n);
+bytes_t *b_new(size_t n) {
+  bytes_t *self = GC_MALLOC_ATOMIC(sizeof(bytes_t) + n);
 
   if (self == NULL)
     return NULL;
@@ -15,32 +15,32 @@ Bytes *b_new(size_t n) {
   return self;
 }
 
-Bytes *b_new_v(const uint8_t *bytes, size_t n) {
+bytes_t *b_new_v(const uint8_t *bytes, size_t n) {
 
-  Bytes *self = b_new(n);
+  bytes_t *self = b_new(n);
 
   memcpy(self->_data, bytes, n);
   return self;
 }
 
-Bytes *b_slice(const Bytes *original, size_t start, size_t end) {
+bytes_t *b_slice(const bytes_t *original, size_t start, size_t end) {
 
   const uint8_t *start_ptr = b_d(original) + posmod(start, b_len(original));
 
   size_t len =
       posmod(end, b_len(original)) - posmod(start, b_len(original)) + 1;
 
-  Bytes *self = b_new_v(start_ptr, len);
+  bytes_t *self = b_new_v(start_ptr, len);
   return self;
 }
 
-int b_cmp(const Bytes *b1, const Bytes *b2) {
+int b_cmp(const bytes_t *b1, const bytes_t *b2) {
   if (b_len(b1) != b_len(b2))
     return 1;
   return memcmp(b_d(b1), b_d(b2), b_len(b1));
 }
 
-const char *b_s(const Bytes *self) {
+const char *b_s(const bytes_t *self) {
   char *s = GC_MALLOC_ATOMIC(b_len(self) * 4 + 4);
 
   char *ptr = s;

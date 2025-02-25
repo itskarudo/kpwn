@@ -6,19 +6,19 @@ typedef struct {
   uint64_t ss;
   uint64_t sp;
   uint64_t flags;
-} SavedState;
+} state_t;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-SavedState save_state(void);
+state_t save_state(void);
 
-Bytes *flat(const Bytes *, ...);
-Bytes *b_mul(const Bytes *, size_t n);
-Bytes *b_xor(const Bytes *, ...);
+bytes_t *flat(const bytes_t *, ...);
+bytes_t *b_mul(const bytes_t *, size_t n);
+bytes_t *b_xor(const bytes_t *, ...);
 uint64_t posmod(int64_t i, int64_t n);
-Bytes *iretq_frame(SavedState, uint64_t rip);
+bytes_t *iretq_frame(state_t, uint64_t rip);
 
 #ifdef __cplusplus
 }
