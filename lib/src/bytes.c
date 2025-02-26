@@ -73,3 +73,7 @@ const char *b_s(const bytes_t *self) {
 
   return s;
 }
+
+void b_append(bytes_t **selfp, const bytes_t *other) {
+  *selfp = flat(*selfp, other, NULL);
+}

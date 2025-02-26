@@ -16,6 +16,7 @@ bytes_t *b_new_v(const uint8_t *, size_t n);
 bytes_t *b_slice(const bytes_t *, size_t start, size_t end);
 int b_cmp(const bytes_t *, const bytes_t *);
 const char *b_s(const bytes_t *);
+void b_append(bytes_t **, const bytes_t *other);
 
 #ifdef __cplusplus
 }
