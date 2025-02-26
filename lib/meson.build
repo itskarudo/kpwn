@@ -1,5 +1,6 @@
 lib_sources = files(
   'src/bytes.c',
+  'src/cyclic.c',
   'src/encoding.c',
   'src/io.c',
   'src/kpwn.c',
@@ -36,6 +37,7 @@ libkpwn_dep = declare_dependency(
 
 lib_headers = files(
   'include/bytes.h',
+  'include/cyclic.h',
   'include/encoding.h',
   'include/io.h',
   'include/kpwn.h',
