@@ -1,12 +1,16 @@
 #pragma once
 
-enum LogLevel { Error = 0, Warning = 1, Info = 2, Success = 3, Debug = 4 };
+enum LogLevel {
+  LOG_ERROR = 0,
+  LOG_WARNING = 1,
+  LOG_INFO = 2,
+  LOG_SUCCESS = 3,
+  LOG_DEBUG = 4
+};
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-void set_log_level(enum LogLevel);
 
 void log_error(const char *fmt, ...);
 void log_warning(const char *fmt, ...);

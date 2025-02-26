@@ -1,5 +1,6 @@
 #include "cyclic.h"
 #include "bytes.h"
+#include "context.h"
 
 #include <stdbool.h>
 #include <stdlib.h>
@@ -55,7 +56,7 @@ bytes_t *de_bruijn(bytes_t *alphabet, size_t n, size_t length) {
 }
 
 bytes_t *cyclic(size_t length) {
-  bytes_t *alphabet = b("abcdefghijklmnopqrstuvwxyz");
-  bytes_t *result = de_bruijn(alphabet, 4, length);
+  bytes_t *result =
+      de_bruijn(context.cyclic_alphabet, context.cyclic_size, length);
   return result;
 }

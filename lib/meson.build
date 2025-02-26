@@ -37,6 +37,7 @@ libkpwn_dep = declare_dependency(
 
 lib_headers = files(
   'include/bytes.h',
+  'include/context.h',
   'include/cyclic.h',
   'include/encoding.h',
   'include/io.h',
