@@ -1,6 +1,11 @@
-.cache/
-build/
-.clangd
-compile_commands.json
 subprojects/**
 !subprojects/**/*.wrap
+
+.cache/
+
+build/
+builddir/
+
+.vscode/
+.clangd
+compile_commands.json
