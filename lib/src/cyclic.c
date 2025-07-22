@@ -19,8 +19,11 @@ bool db_sequence(bytes_t *alphabet, uint8_t *a, size_t n, size_t t, size_t p,
       b_append(result, ext);
       if (b_len(*result) >= length) {
 
-        if (b_len(*result) > length)
+        if (b_len(*result) > length) {
+          bytes_t *res = *result;
           *result = b_slice(*result, 0, length - 1);
+          b_free(res);
+        }
 
         return false;
       }

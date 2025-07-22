@@ -37,10 +37,16 @@ bytes_t *io_readuntil(io_t *self, bytes_t *delim) {
 
   bytes_t *buffer = io_read(self, b_len(delim));
 
-  while (b_cmp(b_slice(buffer, -b_len(delim), -1), delim) != 0) {
+  bytes_t *end = b_slice(buffer, -b_len(delim), -1);
+
+  while (b_cmp(end, delim) != 0) {
     bytes_t *tmp = io_read(self, 1);
     buffer = flat(buffer, tmp, NULL);
+    b_free(end);
+    end = b_slice(buffer, -b_len(delim), -1);
   }
+
+  b_free(end);
 
   return buffer;
 }
