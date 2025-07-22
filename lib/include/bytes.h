@@ -4,30 +4,30 @@
 #include <stdint.h>
 typedef struct {
   size_t _len;
-  uint8_t _data[];
+  uint8_t *_data;
 } bytes_t;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-bytes_t *b_new(size_t n);
-bytes_t *b_new_v(const uint8_t *, size_t n);
-bytes_t *b_slice(const bytes_t *, size_t start, size_t end);
-int b_cmp(const bytes_t *, const bytes_t *);
-const char *b_s(const bytes_t *);
-void b_append(bytes_t **, const bytes_t *other);
-void b_free(bytes_t *);
-void __free_bytes_t(bytes_t **);
+bytes_t b_new(size_t n);
+bytes_t b_new_v(const uint8_t *, size_t n);
+bytes_t b_slice(const bytes_t, size_t start, size_t end);
+int b_cmp(const bytes_t, const bytes_t);
+const char *b_str(const bytes_t);
+void b_append(bytes_t *, const bytes_t other);
+void __destroy_bytes_t(bytes_t *);
+void b_destroy(bytes_t);
 
 #ifdef __cplusplus
 }
 #endif
 
 #define b(v) (b_new_v((uint8_t *)(v), sizeof(v) - 1))
-#define b_d(v) ((v)->_data)
-#define b_at(v, i) ((v)->_data[i])
-#define b_len(v) ((v)->_len)
+#define b_d(v) ((v)._data)
+#define b_at(v, i) ((v)._data[i])
+#define b_len(v) ((v)._len)
 
 #define p8(v)                                                                  \
   __extension__({                                                              \
@@ -53,7 +53,7 @@ void __free_bytes_t(bytes_t **);
     b_new_v((uint8_t *)&_tmp, 8);                                              \
   })
 
-#define u8(v) (*(uint8_t *)(v)->_data)
-#define u16(v) (*(uint16_t *)(v)->_data)
-#define u32(v) (*(uint32_t *)(v)->_data)
-#define u64(v) (*(uint64_t *)(v)->_data)
+#define u8(v) (*(uint8_t *)(v)._data)
+#define u16(v) (*(uint16_t *)(v)._data)
+#define u32(v) (*(uint32_t *)(v)._data)
+#define u64(v) (*(uint64_t *)(v)._data)

@@ -2,24 +2,24 @@
 #include <stdarg.h>
 #include <string.h>
 
-bytes_t *flat(const bytes_t *first, ...) {
+bytes_t flat(size_t n, const bytes_t first, ...) {
   va_list args;
 
   va_start(args, first);
 
   size_t total_len = 0;
-  const bytes_t *tmp = first;
+  bytes_t tmp = first;
 
-  while (tmp != NULL) {
+  for (size_t i = 0; i < n; i++) {
     total_len += b_len(tmp);
-    tmp = va_arg(args, const bytes_t *);
+    tmp = va_arg(args, bytes_t);
   }
 
   va_end(args);
 
-  bytes_t *buffer = b_new(total_len);
-  if (buffer == NULL)
-    return NULL;
+  bytes_t buffer = b_new(total_len);
+  if (buffer._data == NULL)
+    return buffer;
 
   va_start(args, first);
 
@@ -27,10 +27,10 @@ bytes_t *flat(const bytes_t *first, ...) {
 
   tmp = first;
 
-  while (tmp != NULL) {
+  for (size_t i = 0; i < n; i++) {
     memcpy(dest, b_d(tmp), b_len(tmp));
     dest += b_len(tmp);
-    tmp = va_arg(args, bytes_t *);
+    tmp = va_arg(args, bytes_t);
   }
 
   va_end(args);
@@ -38,10 +38,10 @@ bytes_t *flat(const bytes_t *first, ...) {
   return buffer;
 }
 
-bytes_t *b_mul(const bytes_t *bytes, size_t n) {
-  bytes_t *buf = b_new(b_len(bytes) * n);
-  if (buf == NULL)
-    return NULL;
+bytes_t b_mul(const bytes_t bytes, size_t n) {
+  bytes_t buf = b_new(b_len(bytes) * n);
+  if (buf._data == NULL)
+    return buf;
 
   for (size_t i = 0; i < b_len(buf); i++) {
     b_at(buf, i) = b_at(bytes, i % b_len(bytes));
@@ -64,24 +64,24 @@ state_t save_state(void) {
   return state;
 }
 
-bytes_t *b_xor(const bytes_t *first, ...) {
+bytes_t b_xor(size_t n, const bytes_t first, ...) {
   va_list args;
   va_start(args, first);
 
-  const bytes_t *tmp = first;
+  bytes_t tmp = first;
   size_t buf_len = b_len(first);
 
-  while (tmp != NULL) {
+  for (size_t i = 0; i < n; i++) {
     if (b_len(tmp) > buf_len)
       buf_len = b_len(tmp);
-    tmp = va_arg(args, const bytes_t *);
+    tmp = va_arg(args, bytes_t);
   }
 
   va_end(args);
 
-  bytes_t *buffer = b_new(buf_len);
-  if (buffer == NULL)
-    return NULL;
+  bytes_t buffer = b_new(buf_len);
+  if (buffer._data == NULL)
+    return buffer;
 
   memset(b_d(buffer), 0, buf_len);
 
@@ -89,11 +89,11 @@ bytes_t *b_xor(const bytes_t *first, ...) {
 
   tmp = first;
 
-  while (tmp != NULL) {
+  for (size_t i = 0; i < n; i++) {
     for (size_t i = 0; i < buf_len; i++)
       b_at(buffer, i) ^= b_at(tmp, i % b_len(tmp));
 
-    tmp = va_arg(args, bytes_t *);
+    tmp = va_arg(args, bytes_t);
   }
 
   va_end(args);
@@ -103,9 +103,9 @@ bytes_t *b_xor(const bytes_t *first, ...) {
 
 uint64_t posmod(int64_t i, int64_t n) { return (i % n + n) % n; }
 
-bytes_t *iretq_frame(state_t state, uint64_t rip) {
-  bytes_t *frame = flat(p64(rip), p64(state.cs), p64(state.flags),
-                        p64(state.sp), p64(state.ss), NULL);
+bytes_t iretq_frame(state_t state, uint64_t rip) {
+  bytes_t frame = flat(5, p64(rip), p64(state.cs), p64(state.flags),
+                       p64(state.sp), p64(state.ss));
 
   return frame;
 }

@@ -11,19 +11,19 @@ typedef struct {
 extern "C" {
 #endif
 
-io_t *io_new(const char *path, int flags);
-void io_close(io_t *);
+io_t io_new(const char *path, int flags);
+void io_close(io_t);
 
-bytes_t *io_read(io_t *, size_t n);
-bytes_t *io_readuntil(io_t *, bytes_t *delim);
-bytes_t *io_readline(io_t *);
+bytes_t io_read(io_t, size_t n);
+bytes_t io_readuntil(io_t, bytes_t delim);
+bytes_t io_readline(io_t);
 
-void io_write(io_t *, bytes_t *);
+void io_write(io_t, bytes_t);
 
-int io_ioctl(io_t *, unsigned long request, ...);
+int io_ioctl(io_t, unsigned long request, ...);
 
-void __free_io_t(io_t **);
-void io_free(io_t *);
+void __destroy_io_t(io_t *);
+void io_destroy(io_t);
 
 #ifdef __cplusplus
 }

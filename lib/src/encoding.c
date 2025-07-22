@@ -1,10 +1,11 @@
 #include "encoding.h"
+#include "bytes.h"
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-char *url_encode(const bytes_t *str) {
+char *url_encode(const bytes_t str) {
   char *buf = malloc(b_len(str) * 3 + 1);
   if (buf == NULL)
     return NULL;
@@ -31,13 +32,13 @@ char *url_encode(const bytes_t *str) {
   return buf;
 }
 
-bytes_t *url_decode(const char *str) {
+bytes_t url_decode(const char *str) {
 
   size_t len = strlen(str);
-  bytes_t *buf = b_new(len);
+  bytes_t buf = b_new(len);
 
-  if (buf == NULL)
-    return NULL;
+  if (buf._data == NULL)
+    return buf;
 
   size_t pstr = 0;
   size_t pbts = 0;
@@ -64,7 +65,7 @@ static const char base64_map[] = {
     'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
     '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '/'};
 
-char *b64e(const bytes_t *bytes) {
+char *b64e(const bytes_t bytes) {
 
   size_t counts = 0;
   char buffer[3];
@@ -102,14 +103,15 @@ char *b64e(const bytes_t *bytes) {
   return cipher;
 }
 
-bytes_t *b64d(const char *str) {
+bytes_t b64d(const char *str) {
 
   size_t counts = 0;
   char buffer[4];
 
-  bytes_t *plain = malloc(strlen(str) * 3 / 4);
-  if (plain == NULL)
-    return NULL;
+  bytes_t plain = {0};
+  plain._data = malloc(strlen(str) * 3 / 4);
+  if (plain._data == NULL)
+    return plain;
 
   int i = 0, p = 0;
 
@@ -134,7 +136,7 @@ bytes_t *b64d(const char *str) {
 
 static const char *hex_map = "0123456789abcdef";
 
-char *hex(const bytes_t *bytes) {
+char *hex(const bytes_t bytes) {
 
   char *buffer = malloc(b_len(bytes) * 2 + 1);
   if (buffer == NULL)
@@ -149,11 +151,12 @@ char *hex(const bytes_t *bytes) {
   return buffer;
 }
 
-bytes_t *unhex(const char *hex) {
-  bytes_t *self = b_new(strlen(hex) / 2);
+bytes_t unhex(const char *hex) {
+  bytes_t self = {0};
+  self._data = malloc(strlen(hex) / 2);
 
-  if (self == NULL)
-    return NULL;
+  if (self._data == NULL)
+    return self;
 
   for (size_t i = 0; i < b_len(self); i++) {
     char c = hex[i * 2];
@@ -165,8 +168,10 @@ bytes_t *unhex(const char *hex) {
       c -= 'a' - 10;
     else if (c >= 'A' && c <= 'F')
       c -= 'A' - 10;
-    else
-      return NULL;
+    else {
+      b_destroy(self);
+      return (bytes_t){._len = 0, ._data = NULL};
+    }
 
     if (d >= '0' && d <= '9')
       d -= '0';
@@ -174,8 +179,10 @@ bytes_t *unhex(const char *hex) {
       d -= 'a' - 10;
     else if (d >= 'A' && d <= 'F')
       d -= 'A' - 10;
-    else
-      return NULL;
+    else {
+      b_destroy(self);
+      return (bytes_t){._len = 0, ._data = NULL};
+    }
 
     b_at(self, i) = (c << 4) | d;
   }

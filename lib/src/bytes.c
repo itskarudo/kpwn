@@ -4,42 +4,45 @@
 #include <stdlib.h>
 #include <string.h>
 
-bytes_t *b_new(size_t n) {
-  bytes_t *self = malloc(sizeof(bytes_t) + n);
+bytes_t b_new(size_t n) {
+  bytes_t res;
+  res._data = malloc(n);
 
-  if (self == NULL)
-    return NULL;
+  if (res._data == NULL) {
+    res._len = 0;
+    return res;
+  }
 
-  self->_len = n;
+  res._len = n;
+  return res;
+}
+
+bytes_t b_new_v(const uint8_t *bytes, size_t n) {
+
+  bytes_t self = b_new(n);
+  if (self._data == NULL)
+    return self;
+
+  memcpy(self._data, bytes, n);
   return self;
 }
 
-bytes_t *b_new_v(const uint8_t *bytes, size_t n) {
+bytes_t b_slice(const bytes_t original, size_t start, size_t end) {
 
-  bytes_t *self = b_new(n);
-
-  memcpy(self->_data, bytes, n);
-  return self;
-}
-
-bytes_t *b_slice(const bytes_t *original, size_t start, size_t end) {
-
-  const uint8_t *start_ptr = b_d(original) + posmod(start, b_len(original));
-
+  uint8_t *start_ptr = b_d(original) + posmod(start, b_len(original));
   size_t len =
       posmod(end, b_len(original)) - posmod(start, b_len(original)) + 1;
 
-  bytes_t *self = b_new_v(start_ptr, len);
-  return self;
+  return (bytes_t){._data = start_ptr, ._len = len};
 }
 
-int b_cmp(const bytes_t *b1, const bytes_t *b2) {
+int b_cmp(const bytes_t b1, const bytes_t b2) {
   if (b_len(b1) != b_len(b2))
     return 1;
   return memcmp(b_d(b1), b_d(b2), b_len(b1));
 }
 
-const char *b_s(const bytes_t *self) {
+const char *b_str(const bytes_t self) {
   char *s = malloc(b_len(self) * 4 + 4);
 
   char *ptr = s;
@@ -73,12 +76,12 @@ const char *b_s(const bytes_t *self) {
   return s;
 }
 
-void b_append(bytes_t **selfp, const bytes_t *other) {
-  bytes_t *self = *selfp;
-  *selfp = flat(*selfp, other, NULL);
-  b_free(self);
+void b_append(bytes_t *selfp, const bytes_t other) {
+  bytes_t self = *selfp;
+  *selfp = flat(2, *selfp, other);
+  b_destroy(self);
 }
 
-void __free_bytes_t(bytes_t **selfp) { free(*selfp); }
+void __destroy_bytes_t(bytes_t *selfp) { free(selfp->_data); }
 
-void b_free(bytes_t *self) { __free_bytes_t(&self); }
+void b_destroy(bytes_t self) { __destroy_bytes_t(&self); }

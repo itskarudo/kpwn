@@ -14,11 +14,11 @@ extern "C" {
 
 state_t save_state(void);
 
-bytes_t *flat(const bytes_t *, ...);
-bytes_t *b_mul(const bytes_t *, size_t n);
-bytes_t *b_xor(const bytes_t *, ...);
+bytes_t flat(size_t n, const bytes_t, ...);
+bytes_t b_mul(const bytes_t, size_t n);
+bytes_t b_xor(size_t n, const bytes_t, ...);
 uint64_t posmod(int64_t i, int64_t n);
-bytes_t *iretq_frame(state_t, uint64_t rip);
+bytes_t iretq_frame(state_t, uint64_t rip);
 
 #ifdef __cplusplus
 }
@@ -51,4 +51,4 @@ bytes_t *iretq_frame(state_t, uint64_t rip);
                            "r"(state.cs), "r"(ret));                           \
   }
 
-#define auptr(type) type *__attribute__((__cleanup__(__free_##type)))
+#define au(type) type __attribute__((__cleanup__(__destroy_##type)))
