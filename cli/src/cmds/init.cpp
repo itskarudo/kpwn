@@ -8,6 +8,7 @@ constexpr const char *main_template = R"(#include <kpwn/kpwn.h>
 
 int main(void) {
   log_info("Hello, world!\n");
+  return 0;
 }
 )";
 
