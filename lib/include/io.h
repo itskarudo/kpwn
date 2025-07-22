@@ -22,6 +22,9 @@ void io_write(io_t *, bytes_t *);
 
 int io_ioctl(io_t *, unsigned long request, ...);
 
+void __free_io_t(io_t **);
+void io_free(io_t *);
+
 #ifdef __cplusplus
 }
 #endif

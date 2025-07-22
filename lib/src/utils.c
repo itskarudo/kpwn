@@ -1,5 +1,4 @@
 #include "utils.h"
-#include <gc/gc.h>
 #include <stdarg.h>
 #include <string.h>
 

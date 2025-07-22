@@ -50,3 +50,5 @@ bytes_t *iretq_frame(state_t, uint64_t rip);
                          : "r"(state.ss), "r"(state.sp), "r"(state.flags),     \
                            "r"(state.cs), "r"(ret));                           \
   }
+
+#define auptr(type) type *__attribute__((__cleanup__(__free_##type)))

@@ -1,12 +1,11 @@
 #include "encoding.h"
 #include <ctype.h>
-#include <gc/gc.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 char *url_encode(const bytes_t *str) {
-  char *buf = GC_MALLOC_ATOMIC(b_len(str) * 3 + 1);
+  char *buf = malloc(b_len(str) * 3 + 1);
   if (buf == NULL)
     return NULL;
 
@@ -70,7 +69,7 @@ char *b64e(const bytes_t *bytes) {
   size_t counts = 0;
   char buffer[3];
 
-  char *cipher = GC_MALLOC_ATOMIC(b_len(bytes) * 4 / 3 + 4);
+  char *cipher = malloc(b_len(bytes) * 4 / 3 + 4);
   if (cipher == NULL)
     return NULL;
 
@@ -108,7 +107,7 @@ bytes_t *b64d(const char *str) {
   size_t counts = 0;
   char buffer[4];
 
-  bytes_t *plain = GC_MALLOC_ATOMIC(strlen(str) * 3 / 4);
+  bytes_t *plain = malloc(strlen(str) * 3 / 4);
   if (plain == NULL)
     return NULL;
 
@@ -137,7 +136,7 @@ static const char *hex_map = "0123456789abcdef";
 
 char *hex(const bytes_t *bytes) {
 
-  char *buffer = GC_MALLOC_ATOMIC(b_len(bytes) * 2 + 1);
+  char *buffer = malloc(b_len(bytes) * 2 + 1);
   if (buffer == NULL)
     return NULL;
 

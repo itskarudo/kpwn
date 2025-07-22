@@ -1,6 +1,6 @@
 #include "cmds.h"
+#include "config.h"
 #include <filesystem>
-#include <format>
 #include <fstream>
 #include <kpwn.h>
 
@@ -18,10 +18,19 @@ src_files = files(
   'src/main.c'
 )
 
+kpwn_prefix = ')" KPWN_PREFIX R"('
+
+kpwn_lib_dir = kpwn_prefix + '/lib'
+kpwn_header_dir = kpwn_prefix + '/include'
+
+kpwn_dep = declare_dependency(
+    link_args : ['-L' + kpwn_lib_dir, '-lkpwn'],
+    include_directories : include_directories(kpwn_header_dir))
+
 executable('exploit',
   src_files,
-  dependencies: [dependency('kpwn')],
-  link_args: ['-static']
+  dependencies: [kpwn_dep],
+  link_args: ['-static'],
 )
 )";
 
@@ -84,12 +93,6 @@ void init(argparse::ArgumentParser const &cmd_options) {
                                  std::filesystem::perm_options::add);
 
     log_info("Created chal/compress.sh template\n");
-
-    // TODO: support custom meson options and different build systems
-    std::system(
-        std::format("meson setup {}/build {}", path.string(), path.string())
-            .c_str());
-    std::system(std::format("ninja -C {}/build", path.string()).c_str());
 
     std::putchar('\n');
     log_success("Initialized the project, happy hacking!\n\n");

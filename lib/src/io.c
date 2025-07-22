@@ -1,31 +1,21 @@
 #include "io.h"
 #include "utils.h"
 #include <fcntl.h>
-#include <gc/gc.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
 
-void io_finalizer(io_t *self, void *user_data) {
-  (void)user_data;
-
-  close(self->_fd);
-
-  free(self);
-}
-
 io_t *io_new(const char *path, int flags) {
-  io_t *self = GC_MALLOC_ATOMIC(sizeof(io_t));
+  io_t *self = malloc(sizeof(io_t));
   if (self == NULL)
     return NULL;
 
   self->_fd = open(path, flags);
-  if (self->_fd == -1)
+  if (self->_fd < 0) {
+    io_free(self);
     return NULL;
-
-  GC_register_finalizer(self, (GC_finalization_proc)io_finalizer, NULL, NULL,
-                        NULL);
+  }
 
   return self;
 }
@@ -64,3 +54,9 @@ int io_ioctl(io_t *self, unsigned long request, ...) {
   va_start(args, request);
   return ioctl(self->_fd, request, va_arg(args, void *));
 }
+
+void __free_io_t(io_t **selfp) {
+  io_close(*selfp);
+  free(*selfp);
+}
+void io_free(io_t *self) { __free_io_t(&self); }

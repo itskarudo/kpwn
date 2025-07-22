@@ -8,22 +8,8 @@ lib_sources = files(
   'src/utils.c',
 )
 
-# some distros only ship a dynamically linked version of bdwgc
-# a workaround is to build bdwgc from source
-bdwgc_dep = subproject('bdwgc', 
-  default_options: ['default_library=static'],
-).get_variable('bdwgc_dep')
-
-# header only library so doesn't matter
-uthash_dep = dependency('uthash', 
-  fallback: ['uthash', 'uthash_dep'],
-  default_options: ['default_library=static'],
-  static: true,
-)
-
 libkpwn = static_library('kpwn',
   lib_sources,
-  dependencies: [bdwgc_dep, uthash_dep],
   include_directories: include_directories('include'),
   install: true,
   override_options: ['c_std=gnu18'],

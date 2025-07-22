@@ -1,12 +1,11 @@
 #include "bytes.h"
 #include "utils.h"
-#include <gc/gc.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 bytes_t *b_new(size_t n) {
-  bytes_t *self = GC_MALLOC_ATOMIC(sizeof(bytes_t) + n);
+  bytes_t *self = malloc(sizeof(bytes_t) + n);
 
   if (self == NULL)
     return NULL;
@@ -41,7 +40,7 @@ int b_cmp(const bytes_t *b1, const bytes_t *b2) {
 }
 
 const char *b_s(const bytes_t *self) {
-  char *s = GC_MALLOC_ATOMIC(b_len(self) * 4 + 4);
+  char *s = malloc(b_len(self) * 4 + 4);
 
   char *ptr = s;
   *ptr++ = 'b';
@@ -75,5 +74,11 @@ const char *b_s(const bytes_t *self) {
 }
 
 void b_append(bytes_t **selfp, const bytes_t *other) {
+  bytes_t *self = *selfp;
   *selfp = flat(*selfp, other, NULL);
+  b_free(self);
 }
+
+void __free_bytes_t(bytes_t **selfp) { free(*selfp); }
+
+void b_free(bytes_t *self) { __free_bytes_t(&self); }
