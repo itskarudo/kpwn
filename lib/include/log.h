@@ -3,8 +3,8 @@
 enum LogLevel {
   LOG_ERROR = 0,
   LOG_WARNING = 1,
-  LOG_INFO = 2,
-  LOG_SUCCESS = 3,
+  LOG_SUCCESS = 2,
+  LOG_INFO = 3,
   LOG_DEBUG = 4
 };
 
