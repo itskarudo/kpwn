@@ -8,7 +8,7 @@ Kpwn is an exploit development library for C, it is highly focused on kernel exp
 #include <kpwn/kpwn.h>
 int main(void) {
 
-    IO* io = io_new("/dev/ctf", O_RDWR);
+    au(io_t) io = io_new("/dev/ctf", O_RDWR);
 
     io_write(io, b_mul(b("A"), 0x20));
     io_read(io, 0x20);
@@ -20,16 +20,160 @@ int main(void) {
 }
 ```
 
-## Philosophy
+## Installation
 
-When I'm writing an exploit, I want the language I'm using to not get in the way, I want it to actually help me get to the point as fast as possible.
+Kpwn is not recommended to be installed at the default prefix (/usr) since that can cause conflicts between the system's libc and musl.
 
-That is definitely true with python, especially when combined with something like pwntools. but it absolutely is not the case when writing kernel exploits with C, I find myself often thinking about memory management and how big to make my buffers instead of actually writing the damn exploit, not to mention the struggles and hoops you have to go through in order to do something as basic as repeating an array of bytes or base64 encoding.
+```bash
+# Clone the repo
+git clone https://github.com/itskarudo/kpwn.git
+cd kpwn
 
-This is the sole reason behind this project, I want to make a library that can let me think about actually writing the exploit, that handles all the memory behind the scenes and gives me as high of an abstraction as C can provide so I can jump off a KPTI trampoline instead of a building.
+# Build the library
+export CC=musl-gcc # using musl is optional but recommended
+meson setup build --prefix ~/.local
+cd build && ninja
 
-## Memory management?
+# Install
+ninja install
+```
 
-LibKPWN utilizes the [Boehm garbage collector](https://www.hboehm.info/gc/) behind the scenes, meaning there is no need to think about `free`'ing memory or be afraid that your program is allocating way too much.
+## Quickstart
 
-If you wish to allocate a garbage-collected chunk of memory, you can do so by using the `GC_MALLOC` or `GC_MALLOC_ATOMIC` provided by the `gc/gc.h` header file.
+Kpwn comes with a CLI tool that automates creating a project that uses the libkpwn library.
+
+```bash
+kpwn init project_name
+```
+
+For a complete list of the provided functions and types, check the [lib/include directory](https://github.com/itskarudo/kpwn/tree/main/lib/include).
+
+### `io_t`
+
+The `io_t` type is a wrapper around a file descriptor that provides many helpful methods.
+
+```c
+#include <kpwn/kpwn.h>
+
+int main(void) {
+
+    // create new io_t object
+    io_t io = io_new("/dev/chal", O_RDWR);
+
+    // read 16 bytes
+    io_read(io, 16);
+
+    // raed until bytes are found
+    io_readuntil(io, b("skibidi"));
+
+    // read a line, equivalent to `io_readuntil(io, b("\n"))`
+    io_readline();
+
+    // write bytes
+    io_write(io, b("something something"));
+
+    // call ioctl with given arguments
+    io_ioctl(io, ...);
+
+    // closes the backing file descriptor
+    io_close(io);
+
+    // equivalent to `io_close(io)`
+    io_destroy(io);
+
+}
+```
+
+### `bytes_t`
+
+The `bytes_t` type represents a sequence of bytes.
+
+```c
+#include <kpwn/kpwn.h>
+
+int main(void) {
+
+    // create empty 16 bytes bytes_t object
+    bytes_t bytes = b_new(16);
+
+    // create bytes_t object from uint8_t* and size
+    bytes = b_new_v("ABCD", 4);
+
+    // shorthand for `b_new_v(str, sizeof(str)-1)`
+    bytes = b("ABCD");
+
+    // return a read only slice (analog to std::string_view)
+    b_slice(bytes, 1, -2);
+
+    // compare 2 bytes_t objects
+    b_cmp(bytes, b("DEFG"));
+
+    // return string representation of `bytes`
+    char* str = b_str(bytes);
+
+    // append to bytes_t object
+    b_append(&bytes, b("DEFG"));
+
+    // free the backing memory of a bytes_t object
+    b_destroy(bytes);
+
+}
+```
+
+### Logging
+
+the library supports multiple levels of logging that supports printf-style format strings.
+
+```c
+#include <kpwn/kpwn.h>
+
+int main(void) {
+
+    log_error("Failed to open file: %s", "data.txt");
+    log_warning("Low disk space: %d%% left", 5);
+    log_info("Server started on port %d", 8080);
+    log_success("Data saved successfully");
+    log_debug("Value of x is %d", 42);
+
+}
+```
+
+### `context`
+
+This is the global context used within kpwn, it's a singleton of type `context_t`.
+
+```c
+#include <kpwn/kpwn.h>
+
+int main(void) {
+
+    // set the alphabet used when calling cyclic(n)
+    context.cyclic_alphabet = b("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+
+    // set the sequence size of the debrujin sequence produced by cyclic(n)
+    context.cyclic_size = 2;
+
+    // set the log level used with log_* functions
+    context.log_level = LOG_DEBUG;
+
+}
+```
+
+### `au(type)`
+
+the `au(type)` macro allows calling predefined destructor functions when a variable goes out of scope, for `io_t` and `bytes_t` these are `io_destroy` and `b_destroy` respectively.
+
+**NOTE**: never use `au(bytes_t)` with slices as it can lead to a double free.
+
+```c
+#include <kpwn/kpwn.h>
+
+int main(void) {
+
+    {
+        au(io_t) io = io_new("/dev/chal", O_RDWR);
+        // `io_destroy(io)` will get called automatically here.
+    }
+
+}
+```
