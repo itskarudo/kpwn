@@ -1,4 +1,5 @@
 #include "cmds.h"
+#include "config.h"
 #include <argparse/argparse.hpp>
 #include <kpwn.h>
 #include <string>
@@ -13,6 +14,10 @@ int main(int argc, char *argv[]) {
   init_command.add_argument("directory")
       .help("directory to initialize the project in")
       .default_value(std::string{"."});
+
+  init_command.add_argument("--prefix")
+      .help("directory used as a prefix when installing kpwn")
+      .default_value(std::string{KPWN_PREFIX});
 
   program.add_subparser(init_command);
 

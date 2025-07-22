@@ -1,6 +1,6 @@
 #include "cmds.h"
-#include "config.h"
 #include <filesystem>
+#include <format>
 #include <fstream>
 #include <kpwn.h>
 
@@ -22,7 +22,7 @@ src_files = files(
   'src/main.c'
 )
 
-kpwn_prefix = ')" KPWN_PREFIX R"('
+kpwn_prefix = '{}'
 
 kpwn_lib_dir = kpwn_prefix + '/lib'
 kpwn_header_dir = kpwn_prefix + '/include'
@@ -64,6 +64,7 @@ void init(argparse::ArgumentParser const &cmd_options) {
   log_info("Initializing the project..\n\n");
 
   auto dir = cmd_options.get<std::string>("directory");
+  auto prefix = cmd_options.get<std::string>("--prefix");
 
   auto path =
       std::filesystem::weakly_canonical(std::filesystem::current_path() / dir);
@@ -74,7 +75,7 @@ void init(argparse::ArgumentParser const &cmd_options) {
       std::filesystem::create_directory(path);
 
     std::ofstream meson_build(path / "meson.build");
-    meson_build << meson_template;
+    meson_build << std::format(meson_template, prefix);
     meson_build.close();
 
     log_info("Created meson.build template\n");
