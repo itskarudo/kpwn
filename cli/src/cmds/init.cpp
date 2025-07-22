@@ -13,7 +13,10 @@ int main(void) {
 )";
 
 constexpr const char *meson_template = R"(
-project('exploit', 'c', version: '1.0.0')
+project('exploit', 'c',
+  version: '1.0.0',
+  default_options: ['buildtype=release']
+)
 
 src_files = files(
   'src/main.c'
